@@ -22,7 +22,7 @@ spvRouter.post('/register', async (req, res) => {
           const jabatan = user.jabatan;
           if (jabatan == '1'){
             try {
-                const {email, password, nama_asli, foto_asli, nama_palsu, foto_palsu} = req.body
+                const {email, password, cs_name, cs_photo, default_name, default_photo} = req.body
         
                 var saltRounds = 10;
                 const hashedPw = await bcrypt.hash(password, saltRounds)
@@ -30,10 +30,10 @@ spvRouter.post('/register', async (req, res) => {
                     {
                         "email": email,
                         "password": hashedPw,
-                        "nama_asli": nama_asli,
-                        "foto_asli": foto_asli,
-                        "nama_palsu": nama_palsu,
-                        "foto_palsu": foto_palsu,
+                        "cs_name": cs_name,
+                        "cs_photo": cs_photo,
+                        "default_name": default_name,
+                        "default_photo": default_photo,
                     })
                 const createdCust = await newCust.save()
                 res.status(201).json(createdCust)
