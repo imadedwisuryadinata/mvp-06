@@ -9,20 +9,20 @@ const csSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    nama_asli: {
+    cs_name: {
         type: String,
         required: true
     },
-    foto_asli: {
+    cs_photo: {
         type: String,
         //required: true        
         default : null
     },
-    nama_palsu: {
+    default_name: {
         type: String,
         required: true
     },
-    foto_palsu: {
+    default_photo: {
         type: String,
         default : null
         //required: true
