@@ -19,7 +19,7 @@ csRouter.post('/login', async (req, res) => {
         const currentUser = await new Promise((resolve, reject) => {
             Cs.find({
                 "email": email,
-                "status" : true
+                "acc_status" : true
             }, function (err, user) {
                 if (err) 
                     reject(err)

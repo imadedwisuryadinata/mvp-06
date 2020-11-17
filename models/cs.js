@@ -32,12 +32,7 @@ const csSchema = mongoose.Schema({
         //required: true,
         default : "2"
     },
-    rating: {
-        type: Number,
-        //required: true        
-        default : null
-    },
-    status: {
+    acc_status: {
         type: Boolean,
         //required: true        
         default : true
