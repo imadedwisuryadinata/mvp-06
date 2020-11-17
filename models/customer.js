@@ -9,8 +9,8 @@ const customerSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    validasi: {
-        type: Boolean,
+    validate_at: {
+        type: Date,
         default : null
     },
     nama: {

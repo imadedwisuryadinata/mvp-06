@@ -21,10 +21,6 @@ customerRouter.post('/register', async (req, res) => {
             {
                 "email": email,
                 "password": hashedPw,
-                "validasi": true,
-                // "nama": null,
-                // "ktp": null,
-                // "no_rek": null,
             })
         const createdCust = await newCust.save()
         res.status(201).json(createdCust)
@@ -44,7 +40,7 @@ customerRouter.post('/login', async (req, res) => {
         const currentUser = await new Promise((resolve, reject) => {
             Customer.find({
                 "email": email,
-                "validasi" : true
+                "validated_at" : null
             }, function (err, user) {
                 if (err) 
                     reject(err)
