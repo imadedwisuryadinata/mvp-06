@@ -1,32 +1,20 @@
 import mongoose from 'mongoose'
 
 const feedbackSchema = mongoose.Schema({
-    cust_id : {
+    ticket_id : {
         type:mongoose.Schema.Types.ObjectId,
         required:true
     },
-    judul: {
+    message: {
         type: String,
         required: true
     },
-    detail: {
+    sender_id: {
         type: String,
         required: true
     },
-    foto: {
-        type: String,
-        required: true
-    },
-    kategori: {
+    sender_type: {
         type: Number,
-        required: true
-    },
-    no_tiket: {
-        type: String,
-        required: true
-    },
-    status: {
-        type: Boolean,
         required: true
     }
 }, {timestamps: true})
