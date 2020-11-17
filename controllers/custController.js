@@ -13,7 +13,7 @@ customerRouter.use(bodyParser.json());
 customerRouter.post('/register', async (req, res) => {
     try {
 
-        const {email, password} = req.body
+        const {email, password, nama, ktp, no_rek} = req.body
 
         var saltRounds = 10;
         const hashedPw = await bcrypt.hash(password, saltRounds)
@@ -21,6 +21,9 @@ customerRouter.post('/register', async (req, res) => {
             {
                 "email": email,
                 "password": hashedPw,
+                "nama": nama,
+                "ktp": ktp,
+                "no_rek": no_rek
             })
         const createdCust = await newCust.save()
         res.status(201).json(createdCust)
