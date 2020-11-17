@@ -40,7 +40,7 @@ customerRouter.post('/login', async (req, res) => {
         const currentUser = await new Promise((resolve, reject) => {
             Customer.find({
                 "email": email,
-                "validated_at" : null
+                //"validated_email_at" : null
             }, function (err, user) {
                 if (err) 
                     reject(err)
@@ -111,6 +111,20 @@ customerRouter.patch('/update/:id', async (req, res) => {
     })
 })
 
+customerRouter.get('/detail', async (req, res) => {
+    //header apabila akan melakukan akses
+    var token = req.headers.authorization;
+    if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+    
+    //verifikasi jwt
+    jwt.verify(token, Conf.secret, async(err, user) => {
+      if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+      const id = user.id;
+        const user1 = await Customer.find({"_id" : id});
+        res.json(user1)
+
+    })
+})
 
 
 export default customerRouter

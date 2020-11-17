@@ -9,7 +9,11 @@ const customerSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    validate_at: {
+    validated_email_at: {
+        type: Date,
+        default : null
+    },
+    validated_acc_at: {
         type: Date,
         default : null
     },
