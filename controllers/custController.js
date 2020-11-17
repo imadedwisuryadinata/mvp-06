@@ -1,4 +1,6 @@
 import Customer from '../models/customer.js'
+import Ticket from '../models/ticket.js'
+import Complain from '../models/complain_category.js'
 import express from 'express'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
@@ -124,6 +126,60 @@ customerRouter.get('/detail', async (req, res) => {
       if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
       const id = user.id;
         const user1 = await Customer.find({"_id" : id});
+        res.json(user1)
+
+    })
+})
+
+customerRouter.post('/ticket', async (req, res) => {
+
+
+    //header apabila akan melakukan akses
+    var token = req.headers.authorization;
+    if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+    
+    //verifikasi jwt
+    jwt.verify(token, Conf.secret, async(err, user) => {
+        if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+        try {
+            const id = user.id;
+            const {title, description, picture, complain_category} = req.body
+            const newTicket = new Ticket(
+                {
+                    "customer_id": id,
+                    "title": title,
+                    "description": description,
+                    "picture": picture,
+                    "complain_category": complain_category,
+                    "status": 1
+                })
+            const createdTicket = await newTicket.save()
+    
+            //pembuatan complain category
+            const newCategory = new Complain(
+                {
+                    "category": complain_category
+                })
+            await newCategory.save()
+            res.status(201).json(createdTicket)
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({error: error})
+        }
+    })
+})
+
+
+customerRouter.get('/ticket/detail', async (req, res) => {
+    //header apabila akan melakukan akses
+    var token = req.headers.authorization;
+    if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+    
+    //verifikasi jwt
+    jwt.verify(token, Conf.secret, async(err, user) => {
+      if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+      const id = user.id;
+        const user1 = await Ticket.find({"customer_id" : id});
         res.json(user1)
 
     })

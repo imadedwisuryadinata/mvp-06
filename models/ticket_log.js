@@ -14,5 +14,5 @@ const ticketLogSchema = mongoose.Schema({
 
 const TicketLog = mongoose.model('TicketLog', ticketLogSchema)
 
-export default ticketLogSchema
+export default TicketLog
 

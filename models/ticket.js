@@ -19,7 +19,7 @@ const ticketSchema = mongoose.Schema({
     },
     status: {
         type: Number,
-        required: true
+        //required: true
     },
     customer_id: {
         type:mongoose.Schema.Types.ObjectId,
@@ -27,28 +27,28 @@ const ticketSchema = mongoose.Schema({
     },
     cs_id: {
         type:mongoose.Schema.Types.ObjectId,
-        required: true
+        default : null
     },
     spv_id: {
         type:mongoose.Schema.Types.ObjectId,
-        required: true
+        default : null
     },
     rate_from_cust: {
         type: Number,
-        required: true
+        default : null
     },
     rate_from_cs: {
         type: Number,
-        required: true
+        default : null
     },
     rate_from_spv: {
         type: Number,
-        required: true
+        default : null
     }
 
 }, {timestamps: true})
 
 const Ticket = mongoose.model('Ticket', ticketSchema)
 
-export default ticketSchema
+export default Ticket
 
