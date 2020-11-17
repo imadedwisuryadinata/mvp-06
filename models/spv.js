@@ -15,7 +15,7 @@ const spvSchema = mongoose.Schema({
     }
 }, {timestamps: true})
 
-const Spv = mongoose.model('Spc', spvSchema)
+const Spv = mongoose.model('Spv', spvSchema)
 
 export default Spv
 
