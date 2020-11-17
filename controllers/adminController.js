@@ -24,11 +24,17 @@ adminRouter.post('/register', async (req, res) => {
           if (jabatan == '0'){
             try {
 
-                const {email, password, jabatan} = req.body
+                const {email, password, name, photo, jabatan} = req.body
         
                 var saltRounds = 10;
                 const hashedPw = await bcrypt.hash(password, saltRounds)
-                const newSpv = new Spv({"email": email, "password": hashedPw, "jabatan": jabatan})
+                const newSpv = new Spv(
+                    {"email": email, 
+                    "password": hashedPw,
+                    "name": name,
+                    "photo": photo, 
+                    "jabatan": jabatan
+                })
                 const createdSpv = await newSpv.save()
                 res.status(201).json(createdSpv)
             } catch (error) {

@@ -9,6 +9,14 @@ const spvSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    name: {
+        type: String,
+        required: true
+    },
+    photo: {
+        type: String,
+        required: true
+    },
     jabatan: {
         type: Number,
         required: true
