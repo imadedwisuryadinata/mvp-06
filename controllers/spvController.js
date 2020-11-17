@@ -42,7 +42,7 @@ spvRouter.post('/register', async (req, res) => {
                 res.status(500).json({error: error})
             }
         } else {
-            res.status(201).json({"status":"Anda bukan Spv, tidak berwenang melakukan registrasi!"})
+            res.status(401).json({"status":"Anda bukan Spv, tidak berwenang melakukan registrasi!"})
         }
 
     })
@@ -86,6 +86,71 @@ spvRouter.post('/login', async (req, res) => {
     }
 })
 
+spvRouter.get('/list-cs', async (req, res) => {
+    const authHeader = req.headers.authorization;
+    if (authHeader) {
+        const token = authHeader.split(' ')[1];
+        jwt.verify(token,  Conf.secret, (err, user) => {
+            if(user.jabatan != 1)
+                return res.status(403).json({"status": "Anda bukan Spv, tidak berwenang melakukan registrasi!"});
+            if (err) {
+                console.log(err)
+                return res.sendStatus(403);
+            }
+        });
+    } else {
+        return res.status(401).send({ auth: false, message: 'No token provided.' });
+    }
+
+    const data = await Cs.find({})
+
+    if (data && data.length !== 0) {
+        res.json(data)
+    } else {
+        res.status(404).json({message: 'Data not found'})
+}})
+
+spvRouter.patch('/cs-status/:id', async (req, res) => {
+    const authHeader = req.headers.authorization;
+    if (authHeader) {
+        const token = authHeader.split(' ')[1];
+        jwt.verify(token,  Conf.secret, (err, user) => {
+            if(user.jabatan != 1)
+                return res.status(403).json({"status": "Anda bukan Spv, tidak berwenang melakukan registrasi!"});
+            if (err) {
+                console.log(err)
+                return res.sendStatus(403);
+            }
+        });
+    } else {
+        return res.status(401).send({ auth: false, message: 'No token provided.' });
+    }
+    
+    try{
+        const cs = await Cs.findById(req.params.id);
+        if(cs){        
+            const newVal = cs.acc_status == true ? false : true;           
+            cs.acc_status= newVal;
+            await cs.save();
+            if(newVal)
+            {
+                res.status(201).json({"status":'CS berhasil diaktifkan'});
+            }
+            else
+            {
+                res.status(201).json({"status":'CS berhasil dinonaktifkan'});
+            }
+        } else {
+            res.status(404).json({
+                message: 'user not found'
+            })
+        }
+    }
+    catch(error){
+        console.log(error)
+        res.status(500).json({"status":"user not found"});
+    }
+})
 
 
 

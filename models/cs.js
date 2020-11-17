@@ -11,7 +11,7 @@ const csSchema = mongoose.Schema({
     },
     cs_name: {
         type: String,
-        required: true
+        // required: true
     },
     cs_photo: {
         type: String,
@@ -20,7 +20,7 @@ const csSchema = mongoose.Schema({
     },
     default_name: {
         type: String,
-        required: true
+        // required: true
     },
     default_photo: {
         type: String,
