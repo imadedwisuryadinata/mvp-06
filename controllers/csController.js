@@ -1,4 +1,5 @@
 import Cs from '../models/cs.js'
+import Ticket from '../models/ticket.js'
 import express from 'express'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
@@ -49,6 +50,36 @@ csRouter.post('/login', async (req, res) => {
     } catch (error) {
         res.status(500).json({error: error})
     }
+})
+
+
+csRouter.get('/ticket', async (req, res) => {
+    //header apabila akan melakukan akses
+    var token = req.headers.authorization;
+    if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+    
+    //verifikasi jwt
+    jwt.verify(token, Conf.secret, async(err) => {
+      if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+        const ticket1 = await Ticket.find({});
+        res.json(ticket1)
+
+    })
+})
+
+csRouter.get('/ticket/:id', async (req, res) => {
+    //header apabila akan melakukan akses
+    var token = req.headers.authorization;
+    if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+    
+    //verifikasi jwt
+    jwt.verify(token, Conf.secret, async(err, user) => {
+      if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+        const cs_id = user._id
+        const ticket1 = await Ticket.findById(req.params.id);
+        res.json(ticket1)
+
+    })
 })
 
 export default csRouter
