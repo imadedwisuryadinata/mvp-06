@@ -1,6 +1,7 @@
 import Customer from '../models/customer.js'
 import Ticket from '../models/ticket.js'
 import Complain from '../models/complain_category.js'
+import TicketLog from '../models/ticket_log.js'
 import express from 'express'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
@@ -161,6 +162,16 @@ customerRouter.post('/ticket', async (req, res) => {
                     "category": complain_category
                 })
             await newCategory.save()
+
+            //pembuatan ticket log
+            const newLog = new TicketLog(
+                {
+                    "ticket_id": newTicket._id,
+                    "status": 1
+                }
+            )
+            await newLog.save()
+
             res.status(201).json(createdTicket)
         } catch (error) {
             console.log(error)
