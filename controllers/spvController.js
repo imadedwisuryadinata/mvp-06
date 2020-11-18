@@ -1,5 +1,7 @@
 import Cs from '../models/cs.js'
 import Spv from '../models/spv.js'
+import Ticket from '../models/ticket.js'
+import TicketLog from '../models/ticket_log.js'
 import express from 'express'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
@@ -152,6 +154,61 @@ spvRouter.patch('/cs-status/:id', async (req, res) => {
     }
 })
 
+//melihat ticket dengan status 4
+spvRouter.get('/ticket', async (req, res) => {
+    //header apabila akan melakukan akses
+    var token = req.headers.authorization;
+    if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+    
+    //verifikasi jwt
+    jwt.verify(token, Conf.secret, async(err) => {
+      if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+        const ticket = await Ticket.find({"status": 4});
+        res.json(ticket)
+
+    })
+})
+
+// update status ticket oleh SPV -- mengisi spv id, spv akan mengambil ticket ini
+spvRouter.patch('/ticket/:id', async (req, res) => {    
+    //header apabila akan melakukan akses
+    var token = req.headers.authorization;
+    if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+    
+    //verifikasi jwt
+    jwt.verify(token, Conf.secret, async(err, user) => {
+      if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+      const spvId = user.id 
+      try {
+        
+        const ticket = await Ticket.findById(req.params.id);
+        if(ticket){
+            ticket.spv_id = spvId
+            ticket.status = 4
+            const updatedTicket = await ticket.save();
+
+            //pembuatan ticket log
+            const newLog = new TicketLog(
+                {
+                    "ticket_id": ticket._id,
+                    "status": 4
+                }
+            )
+            await newLog.save()
+            res.json(updatedTicket);
+        } else {
+            res.status(404).json({
+                message: 'ticket not found'
+            })
+        }
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({"status": "user not found"});
+    }
+
+    })
+})
 
 
 export default spvRouter

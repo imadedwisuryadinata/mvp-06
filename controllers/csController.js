@@ -1,5 +1,6 @@
 import Cs from '../models/cs.js'
 import Ticket from '../models/ticket.js'
+import TicketLog from '../models/ticket_log.js'
 import express from 'express'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
@@ -78,6 +79,48 @@ csRouter.get('/ticket/:id', async (req, res) => {
         const cs_id = user._id
         const ticket1 = await Ticket.findById(req.params.id);
         res.json(ticket1)
+
+    })
+})
+
+// update status ticket
+csRouter.patch('/ticket/:id', async (req, res) => {    
+    //header apabila akan melakukan akses
+    var token = req.headers.authorization;
+    if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+    
+    //verifikasi jwt
+    jwt.verify(token, Conf.secret, async(err, user) => {
+      if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+      const csId = user.id 
+      try {
+        
+        const {status} = req.body;
+        const ticket = await Ticket.findById(req.params.id);
+        if(ticket){
+            ticket.cs_id = csId
+            ticket.status = status
+            const updatedTicket = await ticket.save();
+
+            //pembuatan ticket log
+            const newLog = new TicketLog(
+                {
+                    "ticket_id": ticket._id,
+                    "status": status
+                }
+            )
+            await newLog.save()
+            res.json(updatedTicket);
+        } else {
+            res.status(404).json({
+                message: 'ticket not found'
+            })
+        }
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({"status": "user not found"});
+    }
 
     })
 })
