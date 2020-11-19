@@ -134,32 +134,53 @@ csRouter.patch('/ticket/:id', async (req, res) => {
     })
 })
 
-// csRouter.patch('/feedback/:id', async (req, res) => {
-//     //header apabila akan melakukan akses
-//     var token = req.headers.authorization;
-//     if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+//melihat semua feedback
+csRouter.get('/feedback', async (req, res) => {
+    //header apabila akan melakukan akses
+    var token = req.headers.authorization;
+    if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
     
-//     //verifikasi jwt
-//     jwt.verify(token, Conf.secret, async(err, user) => {
-//         if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-//         try {
-//             const id = user.id;
-//             const {title, description, picture, complain_category} = req.body
-//             const newTicket = new Feedback(
-//                 {
-//                     "customer_id": id,
-//                     "title": title,
-//                     "description": description,
-//                     "picture": picture
-//                 })
-//             const createdTicket = await newTicket.save()
+    //verifikasi jwt
+    jwt.verify(token, Conf.secret, async(err) => {
+      if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+        const feedback = await Feedback.find({});
+        res.json(feedback)
+
+    })
+})
+
+// update status ticket
+csRouter.patch('/feedback/:id', async (req, res) => {    
+    //header apabila akan melakukan akses
+    var token = req.headers.authorization;
+    if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
     
-//             res.status(201).json(createdTicket)
-//         } catch (error) {
-//             console.log(error)
-//             res.status(500).json({error: error})
-//         }
-//     })
-// })
+    //verifikasi jwt
+    jwt.verify(token, Conf.secret, async(err, user) => {
+      if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+      const Id = user.id 
+      try {
+        
+        const {message} = req.body;
+        const feedback = await Feedback.findById(req.params.id);
+        if(feedback){
+            feedback.sender_id = Id
+            feedback.message = message
+            feedback.sender_type = 1
+            const updatedFeedback = await feedback.save();
+            res.json(updatedFeedback);
+        } else {
+            res.status(404).json({
+                message: 'feedback not found'
+            })
+        }
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({"status": "user not found"});
+    }
+
+    })
+})
 
 export default csRouter

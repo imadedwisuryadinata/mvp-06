@@ -2,6 +2,7 @@ import Cs from '../models/cs.js'
 import Spv from '../models/spv.js'
 import Ticket from '../models/ticket.js'
 import TicketLog from '../models/ticket_log.js'
+import Feedback from '../models/feedback.js'
 import express from 'express'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
@@ -199,6 +200,56 @@ spvRouter.patch('/ticket/:id', async (req, res) => {
         } else {
             res.status(404).json({
                 message: 'ticket not found'
+            })
+        }
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({"status": "user not found"});
+    }
+
+    })
+})
+
+
+//melihat semua feedback
+spvRouter.get('/feedback', async (req, res) => {
+    //header apabila akan melakukan akses
+    var token = req.headers.authorization;
+    if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+    
+    //verifikasi jwt
+    jwt.verify(token, Conf.secret, async(err) => {
+      if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+        const feedback = await Feedback.find({});
+        res.json(feedback)
+
+    })
+})
+
+// update status ticket
+spvRouter.patch('/feedback/:id', async (req, res) => {    
+    //header apabila akan melakukan akses
+    var token = req.headers.authorization;
+    if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+    
+    //verifikasi jwt
+    jwt.verify(token, Conf.secret, async(err, user) => {
+      if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+      const Id = user.id 
+      try {
+        
+        const {message} = req.body;
+        const feedback = await Feedback.findById(req.params.id);
+        if(feedback){
+            feedback.sender_id = Id
+            feedback.message = message
+            feedback.sender_type = 2
+            const updatedFeedback = await feedback.save();
+            res.json(updatedFeedback);
+        } else {
+            res.status(404).json({
+                message: 'feedback not found'
             })
         }
 

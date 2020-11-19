@@ -2,6 +2,7 @@ import Customer from '../models/customer.js'
 import Ticket from '../models/ticket.js'
 import Complain from '../models/complain_category.js'
 import TicketLog from '../models/ticket_log.js'
+import Feedback from '../models/feedback.js'
 import express from 'express'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
@@ -196,5 +197,40 @@ customerRouter.get('/ticket/detail', async (req, res) => {
     })
 })
 
+//melihat feedback dari ticket yang sudah dibuat
+// customerRouter.get('/feedback', async (req, res) => {
+//     //header apabila akan melakukan akses
+//     var token = req.headers.authorization;
+//     if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+    
+//     //verifikasi jwt
+//     jwt.verify(token, Conf.secret, async(err, user) => {
+//       if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+//         const id = user.id;
+//         const ticket = await Ticket.find({"customer_id" : id});
+//         console.log(ticket.length)
+//         const feedback=[]
+//         for (let i = 0; i <= ticket.length; i++) {
+//             let ticketId = ticket[i]._id
+//             let feedback = await Feedback.find({"ticket_id" : ticketId});
+//             res.json(feedback[i])
+            
+//         }
+
+//         // if (ticket[1] != ""){
+//         //     const ticketId = ticket[2]._id
+//         //     const feedback = await Feedback.find({"ticket_id" : ticketId});
+//         //     res.json(feedback)
+//         // } else {
+//         //     res.status(404).json({
+//         //         message: 'user not found'
+//         //     })
+//         // }
+
+
+
+
+//     })
+// })
 
 export default customerRouter
