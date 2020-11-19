@@ -32,6 +32,9 @@ connectDB()
 // middleware
 app.use(morgan('dev'))
 
+//To Get static image
+app.use(express.static('public'))
+
 // routing
 app.use(express.json());
 app.get('/', (req, res) => {

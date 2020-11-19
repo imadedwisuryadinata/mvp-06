@@ -8,11 +8,25 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import bodyParser from 'body-parser'
 import Conf from '../config.js'
+import path from 'path'
+import fs from 'fs'
+import fileUpload from 'express-fileupload'
 
 const customerRouter = express.Router()
 
+const __dirname = path.resolve();
+
 customerRouter.use(bodyParser.urlencoded({extended: false}));
 customerRouter.use(bodyParser.json());
+customerRouter.use(fileUpload());
+
+
+var dir = './public/ticket';
+
+// buat folder untuk penyimpanan jika belum ada
+if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+}
 
 customerRouter.post('/register', async (req, res) => {
     try {
@@ -137,24 +151,41 @@ customerRouter.post('/ticket', async (req, res) => {
 
 
     //header apabila akan melakukan akses
-    var token = req.headers.authorization;
-    if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
-    
+    var authHeader = req.headers.authorization;
+    if (!authHeader) 
+        return res.status(401).send({ auth: false, message: 'No token provided.' });
+
+    const token = authHeader.split(' ')[1];
     //verifikasi jwt
     jwt.verify(token, Conf.secret, async(err, user) => {
         if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
         try {
             const id = user.id;
-            const {title, description, picture, complain_category} = req.body
+            const {title, description, complain_category} = req.body
+            
+            //jika gambar wajib
+            if (!req.files || Object.keys(req.files).length === 0) {
+                return res.status(400).send('Harap sertakan bukti gambar');
+            }
+
+            const picture = req.files.picture;
+            const title_slug =  title.split(' ').join('-'); //me-replace spasi dengan dash
+
+            const pictureName = 'ticket-' + title_slug + '-' + Date.now() + path.extname(picture.name)
+            picture.mv(__dirname + '/public/ticket/'+ pictureName, function (err) {
+            if (err) 
+                return res.status(500).send(err);
+            });
+
             const newTicket = new Ticket(
-                {
-                    "customer_id": id,
-                    "title": title,
-                    "description": description,
-                    "picture": picture,
-                    "complain_category": complain_category,
-                    "status": 1
-                })
+            {
+                "customer_id": id,
+                "title": title,
+                "description": description,
+                "picture": 'ticket/'+pictureName,
+                "complain_category": complain_category,
+                "status": 1
+            })
             const createdTicket = await newTicket.save()
     
             //pembuatan complain category

@@ -8,25 +8,64 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import bodyParser from 'body-parser'
 import Conf from '../config.js'
+import path from 'path'
+import fs from 'fs'
+import fileUpload from 'express-fileupload'
 
 const spvRouter = express.Router()
 
+const __dirname = path.resolve();
+
 spvRouter.use(bodyParser.urlencoded({extended: false}));
 spvRouter.use(bodyParser.json());
+spvRouter.use(fileUpload());
+
+var dir = './public/photo';
+
+// buat folder untuk penyimpan jika belum ada
+if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+}
 
 spvRouter.post('/register', async (req, res) => {
     //header apabila akan melakukan akses
-    var token = req.headers.authorization;
-        if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+    var authHeader = req.headers.authorization;
+    if (!authHeader) 
+        return res.status(401).send({ auth: false, message: 'No token provided.' });
         
+    const token = authHeader.split(' ')[1];
     //verifikasi jwt
     jwt.verify(token, Conf.secret, async(err, user) => {
-      if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+    //   console.log(err);
+        if (err) 
+        return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
           const jabatan = user.jabatan;
           if (jabatan == '1'){
             try {
-                const {email, password, cs_name, cs_photo, default_name, default_photo} = req.body
-        
+                const {email, password, cs_name, default_name} = req.body
+                
+                if (!req.files || Object.keys(req.files).length === 0) {
+                    return res.status(400).send('Harap sertakan foto asli dan alias CS');
+                }
+
+                const cs_photo = req.files.cs_photo;
+                const default_photo = req.files.default_photo;
+
+                const cs_name_slug =  cs_name.split(' ').join('-');
+
+                const csp_filename = 'csp-' + cs_name_slug + '-' + Date.now() + path.extname(cs_photo.name)
+                const dp_filename = 'dp-' + cs_name_slug + '-' + Date.now() + path.extname(default_photo.name)
+
+                cs_photo.mv(__dirname + '/public/photo/'+ csp_filename, function (err) {
+                    if (err) 
+                        return res.status(500).send(err);
+                });
+
+                default_photo.mv(__dirname + '/public/photo/'+ dp_filename, function (err) {
+                    if (err) 
+                        return res.status(500).send(err);
+                });
+
                 var saltRounds = 10;
                 const hashedPw = await bcrypt.hash(password, saltRounds)
                 const newCust = new Cs(
@@ -34,9 +73,9 @@ spvRouter.post('/register', async (req, res) => {
                         "email": email,
                         "password": hashedPw,
                         "cs_name": cs_name,
-                        "cs_photo": cs_photo,
+                        "cs_photo": 'photo/'+csp_filename,
                         "default_name": default_name,
-                        "default_photo": default_photo,
+                        "default_photo": 'photo/'+dp_filename,
                     })
                 const createdCust = await newCust.save()
                 res.status(201).json(createdCust)
@@ -105,6 +144,7 @@ spvRouter.get('/list-cs', async (req, res) => {
         return res.status(401).send({ auth: false, message: 'No token provided.' });
     }
 
+    // const base_url = req.protocol+"://"+req.headers.host
     const data = await Cs.find({})
 
     if (data && data.length !== 0) {
