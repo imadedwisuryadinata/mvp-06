@@ -1,6 +1,7 @@
 import Cs from '../models/cs.js'
 import Ticket from '../models/ticket.js'
 import TicketLog from '../models/ticket_log.js'
+import Feedback from '../models/feedback.js'
 import express from 'express'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
@@ -110,6 +111,14 @@ csRouter.patch('/ticket/:id', async (req, res) => {
                 }
             )
             await newLog.save()
+
+            //pembuatan feedback
+            const newFeed = new Feedback(
+                {
+                    "ticket_id": ticket._id,
+                }
+            )
+            await newFeed.save()
             res.json(updatedTicket);
         } else {
             res.status(404).json({
@@ -124,5 +133,33 @@ csRouter.patch('/ticket/:id', async (req, res) => {
 
     })
 })
+
+// csRouter.patch('/feedback/:id', async (req, res) => {
+//     //header apabila akan melakukan akses
+//     var token = req.headers.authorization;
+//     if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+    
+//     //verifikasi jwt
+//     jwt.verify(token, Conf.secret, async(err, user) => {
+//         if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+//         try {
+//             const id = user.id;
+//             const {title, description, picture, complain_category} = req.body
+//             const newTicket = new Feedback(
+//                 {
+//                     "customer_id": id,
+//                     "title": title,
+//                     "description": description,
+//                     "picture": picture
+//                 })
+//             const createdTicket = await newTicket.save()
+    
+//             res.status(201).json(createdTicket)
+//         } catch (error) {
+//             console.log(error)
+//             res.status(500).json({error: error})
+//         }
+//     })
+// })
 
 export default csRouter

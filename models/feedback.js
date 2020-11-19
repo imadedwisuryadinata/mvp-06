@@ -7,15 +7,18 @@ const feedbackSchema = mongoose.Schema({
     },
     message: {
         type: String,
-        required: true
+        default : null
+        //required: true
     },
     sender_id: {
         type: String,
-        required: true
+        default : null
+        //required: true
     },
     sender_type: {
         type: Number,
-        required: true
+        default : null
+        //required: true
     }
 }, {timestamps: true})
 
