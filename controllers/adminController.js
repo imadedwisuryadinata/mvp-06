@@ -4,19 +4,36 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import bodyParser from 'body-parser'
 import Conf from '../config.js'
+import path from 'path'
+import fs from 'fs'
+import fileUpload from 'express-fileupload'
 
 const adminRouter = express.Router()
 
+const __dirname = path.resolve();
+
 adminRouter.use(bodyParser.urlencoded({extended: false}));
 adminRouter.use(bodyParser.json());
+
+adminRouter.use(fileUpload());
+
+
+var dir = './public/spvPhoto';
+
+// buat folder untuk penyimpanan jika belum ada
+if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+}
 
 // add new SPV
 adminRouter.post('/register', async (req, res) => {
 
     //header apabila akan melakukan akses
-    var token = req.headers.authorization;
-        if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
-        
+    var authHeader = req.headers.authorization;
+    if (!authHeader) 
+        return res.status(401).send({ auth: false, message: 'No token provided.' });
+    const token = authHeader.split(' ')[1]; 
+
     //verifikasi jwt
     jwt.verify(token, Conf.secret, async(err, user) => {
       if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
@@ -24,17 +41,31 @@ adminRouter.post('/register', async (req, res) => {
           if (jabatan == '0'){
             try {
 
-                const {email, password, name, photo, jabatan} = req.body
-        
+                const {email, password, name, jabatan} = req.body
+                //jika gambar wajib
+                if (!req.files || Object.keys(req.files).length === 0) {
+                    return res.status(400).send('Harap sertakan foto Spv');
+                }
+
+                const photo = req.files.photo;
+                const name_slug =  name.split(' ').join('-'); //me-replace spasi dengan dash
+
+                const photoName = 'spv-' + name_slug + '-' + Date.now() + path.extname(photo.name)
+                photo.mv(__dirname + '/public/spvPhoto/'+ photoName, function (err) {
+                if (err) 
+                    return res.status(500).send(err);
+                });
+
                 var saltRounds = 10;
                 const hashedPw = await bcrypt.hash(password, saltRounds)
                 const newSpv = new Spv(
-                    {"email": email, 
-                    "password": hashedPw,
-                    "name": name,
-                    "photo": photo, 
-                    "jabatan": jabatan
-                })
+                    {
+                        "email": email, 
+                        "password": hashedPw,
+                        "name": name,
+                        "photo": 'spvPhoto/'+photoName, 
+                        "jabatan": jabatan
+                    })
                 const createdSpv = await newSpv.save()
                 res.status(201).json(createdSpv)
             } catch (error) {
