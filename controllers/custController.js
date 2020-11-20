@@ -85,7 +85,7 @@ customerRouter.post('/login', async (req, res) => {
                         res.status(200).send({"status": "logged in!", auth: true, token: token});
                     }
                 } else 
-                    res.status(201).json({"status": "wrong password."});
+                    res.status(401).json({"status": "wrong password."});
                 
             });
         } else {
