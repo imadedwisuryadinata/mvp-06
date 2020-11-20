@@ -253,8 +253,19 @@ customerRouter.get('/feedback', async (req, res) => {
       if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
         const id = user.id;
         const ticket = await Ticket.find({"customer_id" : id});
-        const feedback = await Feedback.find({"ticket_id" : ticket})
-        res.json(feedback)
+        const checkTicket = ticket.length
+        if (checkTicket == 0){
+            res.status(201).send({message: "Anda belum melakukan submit ticket"})
+        } else {
+            const feedback = await Feedback.find({"ticket_id" : ticket})
+            const checkFeedback = feedback.length
+            if (checkFeedback == 0){
+                res.status(201).send({message: "Saat ini feedback untuk ticket anda belum tersedia"})
+            } else {
+                res.json(feedback)
+            }            
+        }
+        
 
     })
 })
