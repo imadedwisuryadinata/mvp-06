@@ -195,6 +195,32 @@ spvRouter.patch('/cs-status/:id', async (req, res) => {
     }
 })
 
+//menghapus cs by id
+spvRouter.delete('/cs-list/:id', async (req, res) => {
+    //header apabila akan melakukan akses
+    var authHeader = req.headers.authorization;
+    if (!authHeader) 
+        return res.status(401).send({ auth: false, message: 'No token provided.' });
+    const token = authHeader.split(' ')[1];
+    
+    //verifikasi jwt
+    jwt.verify(token, Conf.secret, async(err) => {
+      if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+        const user = await Cs.findById(req.params.id);
+        if(user){
+            await user.remove();
+            res.json({
+                message: 'User removed'
+            })
+        } else {
+            res.status(404).json({
+                message: 'User not found'
+            })
+        }
+
+    })
+})
+
 //melihat ticket dengan status 4
 spvRouter.get('/ticket', async (req, res) => {
     //header apabila akan melakukan akses
@@ -280,7 +306,7 @@ spvRouter.patch('/feedback/:id', async (req, res) => {
     if (!authHeader) 
         return res.status(401).send({ auth: false, message: 'No token provided.' });
     const token = authHeader.split(' ')[1];
-    
+
     //verifikasi jwt
     jwt.verify(token, Conf.secret, async(err, user) => {
       if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
