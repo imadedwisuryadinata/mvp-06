@@ -198,8 +198,10 @@ spvRouter.patch('/cs-status/:id', async (req, res) => {
 //melihat ticket dengan status 4
 spvRouter.get('/ticket', async (req, res) => {
     //header apabila akan melakukan akses
-    var token = req.headers.authorization;
-    if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+    var authHeader = req.headers.authorization;
+    if (!authHeader) 
+        return res.status(401).send({ auth: false, message: 'No token provided.' });
+    const token = authHeader.split(' ')[1];
     
     //verifikasi jwt
     jwt.verify(token, Conf.secret, async(err) => {
@@ -213,8 +215,10 @@ spvRouter.get('/ticket', async (req, res) => {
 // update status ticket oleh SPV -- mengisi spv id, spv akan mengambil ticket ini
 spvRouter.patch('/ticket/:id', async (req, res) => {    
     //header apabila akan melakukan akses
-    var token = req.headers.authorization;
-    if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+    var authHeader = req.headers.authorization;
+    if (!authHeader) 
+        return res.status(401).send({ auth: false, message: 'No token provided.' });
+    const token = authHeader.split(' ')[1];
     
     //verifikasi jwt
     jwt.verify(token, Conf.secret, async(err, user) => {
@@ -255,8 +259,10 @@ spvRouter.patch('/ticket/:id', async (req, res) => {
 //melihat semua feedback
 spvRouter.get('/feedback', async (req, res) => {
     //header apabila akan melakukan akses
-    var token = req.headers.authorization;
-    if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+    var authHeader = req.headers.authorization;
+    if (!authHeader) 
+        return res.status(401).send({ auth: false, message: 'No token provided.' });
+    const token = authHeader.split(' ')[1];
     
     //verifikasi jwt
     jwt.verify(token, Conf.secret, async(err) => {
@@ -270,8 +276,10 @@ spvRouter.get('/feedback', async (req, res) => {
 // update status ticket
 spvRouter.patch('/feedback/:id', async (req, res) => {    
     //header apabila akan melakukan akses
-    var token = req.headers.authorization;
-    if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+    var authHeader = req.headers.authorization;
+    if (!authHeader) 
+        return res.status(401).send({ auth: false, message: 'No token provided.' });
+    const token = authHeader.split(' ')[1];
     
     //verifikasi jwt
     jwt.verify(token, Conf.secret, async(err, user) => {

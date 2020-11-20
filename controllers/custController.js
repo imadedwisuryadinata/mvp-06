@@ -101,8 +101,10 @@ customerRouter.post('/login', async (req, res) => {
 customerRouter.patch('/update/:id', async (req, res) => {
     
     //header apabila akan melakukan akses
-    var token = req.headers.authorization;
-    if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+    var authHeader = req.headers.authorization;
+    if (!authHeader) 
+        return res.status(401).send({ auth: false, message: 'No token provided.' });
+    const token = authHeader.split(' ')[1];
     
     //verifikasi jwt
     jwt.verify(token, Conf.secret, async(err, user) => {
@@ -134,8 +136,10 @@ customerRouter.patch('/update/:id', async (req, res) => {
 
 customerRouter.get('/detail', async (req, res) => {
     //header apabila akan melakukan akses
-    var token = req.headers.authorization;
-    if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+    var authHeader = req.headers.authorization;
+    if (!authHeader) 
+        return res.status(401).send({ auth: false, message: 'No token provided.' });
+    const token = authHeader.split(' ')[1];;
     
     //verifikasi jwt
     jwt.verify(token, Conf.secret, async(err, user) => {
@@ -215,8 +219,10 @@ customerRouter.post('/ticket', async (req, res) => {
 
 customerRouter.get('/ticket/detail', async (req, res) => {
     //header apabila akan melakukan akses
-    var token = req.headers.authorization;
-    if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+    var authHeader = req.headers.authorization;
+    if (!authHeader) 
+        return res.status(401).send({ auth: false, message: 'No token provided.' });
+    const token = authHeader.split(' ')[1];
     
     //verifikasi jwt
     jwt.verify(token, Conf.secret, async(err, user) => {
