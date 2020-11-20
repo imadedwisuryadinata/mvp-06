@@ -33,9 +33,11 @@ customerRouter.post('/register', async (req, res) => {
 
         const {email, password, nama, ktp, no_rek} = req.body
 
-        var saltRounds = 10;
-        const hashedPw = await bcrypt.hash(password, saltRounds)
-        const newCust = new Customer(
+        const duplicate = await Customer.find({"email" : email})
+        if (!duplicate[0]){
+            var saltRounds = 10;
+            const hashedPw = await bcrypt.hash(password, saltRounds)
+            const newCust = new Customer(
             {
                 "email": email,
                 "password": hashedPw,
@@ -43,8 +45,12 @@ customerRouter.post('/register', async (req, res) => {
                 "ktp": ktp,
                 "no_rek": no_rek
             })
-        const createdCust = await newCust.save()
-        res.status(201).json(createdCust)
+            const createdCust = await newCust.save()
+            res.status(201).json(createdCust)
+        } else {
+            res.status(401).send({"status": "email already exists"});
+        }
+
     } catch (error) {
         console.log(error)
         res.status(500).json({error: error})
@@ -147,7 +153,6 @@ customerRouter.get('/detail', async (req, res) => {
       const id = user.id;
         const user1 = await Customer.find({"_id" : id});
         res.json(user1[0])
-        console.log(user1)
 
     })
 })
