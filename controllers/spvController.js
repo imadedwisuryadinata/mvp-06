@@ -350,6 +350,14 @@ spvRouter.patch('/ticket/close/:id', async (req, res) => {
         if(ticket){
             ticket.status = 5
             const updatedTicket = await ticket.save();
+            //pembuatan ticket log
+            const newLog = new TicketLog(
+                {
+                    "ticket_id": ticket._id,
+                    "status": 5
+                }
+            )
+            await newLog.save();
             res.json(updatedTicket);
         } else {
             res.status(404).json({
@@ -364,5 +372,58 @@ spvRouter.patch('/ticket/close/:id', async (req, res) => {
 
     })
 })
+
+//melihat daftar ticket yang perlu dirating
+spvRouter.get('/rating', async (req, res) => {
+    //header apabila akan melakukan akses
+    var authHeader = req.headers.authorization;
+    if (!authHeader) 
+        return res.status(401).send({ auth: false, message: 'No token provided.' });
+    const token = authHeader.split(' ')[1];
+    
+    //verifikasi jwt
+    jwt.verify(token, Conf.secret, async(err,user) => {
+      if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+        const id = user.id
+        const ticket = await Ticket.find({"status": 5, "spv_id" : id});
+        res.json(ticket)
+
+    })
+})
+
+// memberikan rating
+spvRouter.patch('/rating/:id', async (req, res) => {    
+    //header apabila akan melakukan akses
+    var authHeader = req.headers.authorization;
+    if (!authHeader) 
+        return res.status(401).send({ auth: false, message: 'No token provided.' });
+    const token = authHeader.split(' ')[1];
+    
+    //verifikasi jwt
+    jwt.verify(token, Conf.secret, async(err, user) => {
+      if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+      const csId = user.id 
+      try {
+        
+        const {rate_from_spv} = req.body;
+        const ticket = await Ticket.findById(req.params.id);
+        if(ticket){
+            ticket.rate_from_spv = rate_from_spv
+            const updatedTicket = await ticket.save();
+            res.json(updatedTicket);
+        } else {
+            res.status(404).json({
+                message: 'ticket not found'
+            })
+        }
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({"status": "user not found"});
+    }
+
+    })
+})
+
 
 export default spvRouter
