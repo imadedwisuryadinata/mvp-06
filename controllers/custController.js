@@ -146,7 +146,8 @@ customerRouter.get('/detail', async (req, res) => {
       if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
       const id = user.id;
         const user1 = await Customer.find({"_id" : id});
-        res.json(user1)
+        res.json(user1[0])
+        console.log(user1)
 
     })
 })
