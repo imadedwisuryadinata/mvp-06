@@ -284,4 +284,46 @@ csRouter.patch('/rating/:id', async (req, res) => {
 
     })
 })
+
+
+csRouter.patch('/escalation/:id', async (req, res) => {    
+    //header apabila akan melakukan akses
+    var authHeader = req.headers.authorization;
+    if (!authHeader) 
+        return res.status(401).send({ auth: false, message: 'No token provided.' });
+    const token = authHeader.split(' ')[1];
+    
+    //verifikasi jwt
+    jwt.verify(token, Conf.secret, async(err) => {
+      if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+      try {
+        const ticket = await Ticket.findById(req.params.id);
+        if(ticket){
+            ticket.status = 4
+            await ticket.save();
+
+            //pembuatan ticket log
+            const newLog = new TicketLog(
+                {
+                    "ticket_id": ticket._id,
+                    "status": 4
+                }
+            )
+            await newLog.save();
+            res.status(201).json({"status": "Tiket berhasil dieskalasi"});
+        } else {
+            res.status(404).json({
+                message: 'Ticket not found'
+            })
+        }
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({"status": "user not found"});
+    }
+
+    })
+})
+
+
 export default csRouter
