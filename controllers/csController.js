@@ -326,4 +326,58 @@ csRouter.patch('/escalation/:id', async (req, res) => {
 })
 
 
+// melihat semua feedback
+csRouter.get('/hall-of-fame/:time', async (req, res) => { // header apabila akan melakukan akses
+    var authHeader = req.headers.authorization;
+    if (! authHeader) 
+        return res.status(401).send({auth: false, message: 'No token provided.'});
+    
+    const token = authHeader.split(' ')[1];
+
+    // verifikasi jwt
+    jwt.verify(token, Conf.secret, async (err) => {
+        if (err) 
+            return res.status(500).send({auth: false, message: 'Failed to authenticate token.'});
+        
+        if(req.params.time == 'daily')
+        {
+            // const now = new Date();
+            const startDate = new Date()
+            startDate.setHours(0,0,0)
+
+            const endDate = new Date()
+            endDate.setHours(23,59,59)
+
+            console.log(startDate,endDate)
+            const data = await Ticket.find({
+                createdAt: {
+                    $gte: startDate,
+                    $lt: endDate
+                }
+            });
+            res.json(data)
+        }
+        else if(req.params.time == 'monthly')
+        {
+            var date = new Date();
+            var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+            var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
+            const data = await Ticket.find({
+                createdAt: {
+                    $gte: firstDay,
+                    $lt: lastDay
+                }
+            });
+            res.json(data)
+        }
+        else if(req.params.time == 'yearly')
+        {
+            console.log('yearly')
+        }
+
+    })
+})
+
+
 export default csRouter
