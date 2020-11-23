@@ -2,6 +2,7 @@ import express from 'express'
 import morgan from 'morgan'
 import mongoose from 'mongoose'
 import dotenv from 'dotenv'
+import cors from 'cors'
 
 dotenv.config()
 
@@ -34,6 +35,9 @@ app.use(morgan('dev'))
 
 //To Get static image
 app.use(express.static('public'))
+
+//use cors
+app.use(cors())
 
 // routing
 app.use(express.json());
